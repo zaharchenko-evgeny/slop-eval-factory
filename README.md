@@ -9,8 +9,8 @@ automations stay there.
 
 | Path | What it is |
 |---|---|
-| `factory.descriptor.yaml` | repositories, tracker, models, environments, limits, gates, checks |
-| `workflows/nodes.yaml` | the workflow graph: nodes, triggers, outcomes, next steps (`delivery.md` explains it) |
+| `factory.project.yaml` | the project descriptor (ADR-0016): repositories, tracker, environments, states and commands with their label stores, models, limits, gates, checks; `workflow:` links the workflow |
+| `workflows/delivery.yaml` | the workflow (format v2): nodes, what wakes them (states, commands, PR events, schedules), outcomes; it names no label (`delivery.md` explains the graph) |
 | `roles/<role>/` | each role's `role.md`, `skills.txt`, `handoff.schema.json` and `setup.sh` (tools the role's environment installs); `_common.md` is appended to every role |
 | `skills/<name>/` | the skills the roles use, installed into `~/.agents/skills` and `~/.claude/skills` by the environment |
 | `knowledge/` | shared knowledge: distilled lessons (`knowledge/slop-factory/`, `knowledge/_shared/`) |
