@@ -92,6 +92,19 @@ if ! install_engine; then
   echo "startup: factory install failed" >&2
   exit 1
 fi
+# The agent's shell does not inherit this script's exports: the factory command carries the team itself.
+if [ -e "$BIN/factory" ] && ! grep -q 'factory-team-wrapper' "$BIN/factory" 2>/dev/null; then
+  mv -f "$BIN/factory" "$BIN/.factory-engine"
+fi
+TEAM_DIR=$(cd "$TEAM" && pwd -P)
+cat > "$BIN/factory" <<EOF
+#!/bin/sh
+# factory-team-wrapper: written by .air/cloud/startup.sh
+FACTORY_TEAM=\${FACTORY_TEAM:-$TEAM_DIR}
+export FACTORY_TEAM
+exec "$BIN/.factory-engine" "\$@"
+EOF
+chmod +x "$BIN/factory"
 # Ops runs from the settings checkout; expose engine scripts used by its role instructions there.
 if [ "${FACTORY_ENV:-default}" = ops ] && [ ! -e "$TEAM/factory" ] && [ ! -L "$TEAM/factory" ]; then
   ln -s "$ENGINE/factory" "$TEAM/factory"

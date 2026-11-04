@@ -25,7 +25,10 @@ STUBS = {
     "curl": 'echo curl >> "$LOG"\nwhile [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; shift; done\ncat "$STUB_TAR" > "$out"\n',
     "git": 'echo git "$@" >> "$LOG"\ncase "$1" in\n  clone) [ "${GIT_FAIL:-}" != clone ] || exit 1; mkdir -p "$7/factory" ;;\n  check-ref-format) [ "${GIT_INVALID_REF:-}" != "$2" ] ;;\n  *) exit 0 ;;\nesac\n',
     "gh": "",
-    "uv": 'echo uv "$@" >> "$LOG"\nprintf "#!/bin/sh\\n" > "$HOME/.local/bin/decide"; chmod +x "$HOME/.local/bin/decide"\n',
+    "uv": ('echo uv "$@" >> "$LOG"\nprintf "#!/bin/sh\\n" > "$HOME/.local/bin/decide"; chmod +x "$HOME/.local/bin/decide"\n'
+           'if [ "$1 $2 $3" = "tool install --force" ]; then\n'
+           '  printf "#!/bin/sh\\necho team=\\$FACTORY_TEAM args=\\$*\\n" > "$HOME/.local/bin/factory"; chmod +x "$HOME/.local/bin/factory"\n'
+           'fi\n'),
 }
 
 
@@ -79,6 +82,17 @@ class StartupTest(unittest.TestCase):
         self.assertNotIn("factory-team", log)
         self.assertEqual((self.repo / "factory").exists(), False)
         self.assertEqual(self.env.get("FACTORY_TEAM_REPOSITORY"), None)
+
+    def test_factory_command_carries_the_team(self):
+        for launch in (1, 2):  # a relaunch reinstalls the engine and must not wrap the wrapper
+            result = self.run_script()
+            self.assertEqual(result.returncode, 0, result.stderr)
+            factory = self.home / ".local/bin/factory"
+            env = {"PATH": "/usr/bin:/bin", "HOME": str(self.home)}
+            out = subprocess.run([str(factory), "sweep", "--main"], env=env, capture_output=True, text=True)
+            self.assertEqual(out.stdout.strip(), f"team={self.repo.resolve()} args=sweep --main", (launch, out.stderr))
+            own = subprocess.run([str(factory)], env={**env, "FACTORY_TEAM": "/elsewhere"}, capture_output=True, text=True)
+            self.assertEqual(own.stdout.strip(), "team=/elsewhere args=")
 
     def test_project_descriptor_tag_selects_engine_ref(self):
         descriptor = self.repo / "factory.project.yaml"
