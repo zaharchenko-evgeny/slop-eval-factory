@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
         with:
-          enable-cache: true
+          enable-cache: false
       - run: uv run --quiet tests/test_air_startup.py
       - run: bash -n .air/cloud/startup.sh roles/*.sh roles/*/setup.sh
       - run: uvx --quiet --from shellcheck-py==0.10.0.1 shellcheck -x .air/cloud/startup.sh roles/*.sh roles/*/setup.sh
