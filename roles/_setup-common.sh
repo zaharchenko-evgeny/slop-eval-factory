@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Shared checks for roles/<role>/setup.sh: required tools and skills.
-# Skills come from skills/vendor/ (pinned in skills.lock, ADR-0008); installed
-# folders are a fallback for skills that are not vendored.
+# Skills come from the team repository's skills/ directory; installed folders are a fallback.
 set -euo pipefail
 
 need_tools() {
@@ -24,7 +23,7 @@ need_skills() {
   while IFS= read -r s; do
     [ -z "$s" ] && continue
     found=no
-    [ -f "$repo_root/skills/vendor/$s/SKILL.md" ] && continue
+    [ -f "$repo_root/skills/$s/SKILL.md" ] && continue
     for d in "${skill_dirs[@]}"; do
       if [ -d "$d" ] && find "$d" -path "*/$s/SKILL.md" -print -quit 2>/dev/null | grep -q .; then
         found=yes
