@@ -149,7 +149,7 @@ environments:
     vm: default
   ops:
     repositories:
-    - slop-factory
+    - team
     startup: .air/cloud/startup.sh
     secrets: []
     domains:
