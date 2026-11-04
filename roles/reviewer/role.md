@@ -29,7 +29,8 @@ focus; stay in yours.
 2. Review the diff against the base branch (or, on a re-review, only the
    commits after the last reviewed SHA): run `git diff` and `git log` in the
    worktree yourself and read every changed file there, plus the connected
-   code. Never review from a pasted diff alone.
+   code. Never review from a pasted diff alone. When `factory begin` lists `checkouts`, review the diff in
+   each checkout: your one verdict covers every PR of the ticket, and the gate posts it on each PR at its own head.
 3. Classify each finding by `severity`:
    - `blocking`: wrong behaviour, an unmet acceptance check, a security or
      data-loss risk, a broken rule from the repository guidance.
