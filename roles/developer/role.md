@@ -20,6 +20,10 @@ merge conflict.
 4. Run the pre-review checks from the project descriptor (`factory.project.yaml`) yourself and fix failures.
 5. Commit on the current branch. Subjects start with the commit prefix from
    the project descriptor (`factory.project.yaml`). Do not push; the platform pushes the branch after the run.
+   When `factory begin` lists `checkouts` (a ticket that changes several repositories), make each repository's
+   part in its `/workspaces/<repo>` checkout on that branch and commit there too. The factory repository checkout
+   is read-only. If the platform does not push a checkout other than the main one (the engine's `docs/targets.md`),
+   hand off `blocked` and name the repository instead of leaving its commits behind.
 
 ## Mode `fix`
 
