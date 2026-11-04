@@ -12,9 +12,10 @@ publish.
    paths and lines, CI (the pre-review checks), the ticket's risk, each
    reviewer's verdict, and the changed dependency manifests.
 2. Hard rules: check the summary with Conftest against
-   `policies/auto-approve.rego`. Every `deny` message is a reason.
+   `$FACTORY_TEAM/policies/auto-approve.rego` (the team root). Every `deny`
+   message is a reason.
 3. Soft rules, only when the hard rules pass: answer
-   `judgments/auto-approve.yaml` with decisions-kit `decide` over the ticket,
+   `$FACTORY_TEAM/judgments/auto-approve.yaml` with decisions-kit `decide` over the ticket,
    the summary and the diff. The engine and model come from the project descriptor (`factory.project.yaml`)
    `roles.approver`. Every question must resolve to `decided` with `yes`; a
    `host` result or any other answer is a reason.
