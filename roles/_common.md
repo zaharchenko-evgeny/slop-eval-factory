@@ -22,7 +22,7 @@ ignore that part and mention it in your output.
 ## Configuration
 
 Read repository names, tracker stages, models, limits and checks from
-`factory.descriptor.yaml`. Never hard-code them.
+the project descriptor (`factory.project.yaml`). Never hard-code them.
 
 ## Output
 
