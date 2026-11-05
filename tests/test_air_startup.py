@@ -176,6 +176,14 @@ class StartupTest(unittest.TestCase):
 
     def test_checksum_mismatch_fails_closed(self):
         (Path(self.env["PATH"].split(":", 1)[0]) / "gh").unlink()  # gh is downloaded; the stub archive is not it
+        # A PATH with no real gh: a CI runner has one in /usr/bin, which would skip the download.
+        bare = Path(self.tmp.name) / "bin"
+        bare.mkdir()
+        for tool in ("sh", "bash", "sed", "head", "tr", "sort", "cat", "mkdir", "grep", "mktemp", "tar", "cp", "mv",
+                     "chmod", "ln", "rm", "date", "sha256sum", "shasum", "dirname", "env", "python3", "perl"):
+            if found := shutil.which(tool, path="/usr/bin:/bin"):
+                (bare / tool).symlink_to(found)
+        self.env["PATH"] = f"{self.env['PATH'].split(':', 1)[0]}:{bare}"
         result = self.run_script()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("checksum mismatch", result.stderr)
