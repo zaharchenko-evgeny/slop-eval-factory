@@ -1,4 +1,5 @@
 engine: 1
+engine_repository: https://github.com/zaharchenko-evgeny/slop-factory.git
 project:
   name: Slop factory
 team_repository: https://github.com/zaharchenko-evgeny/slop-eval-factory
