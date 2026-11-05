@@ -21,3 +21,4 @@ automations stay there.
 2. After the merge, the operator redeploys: `factory deploy --team <this checkout> --dry-run`, then `--apply`.
    Roles, skills and knowledge are read at run time, so they apply to the next run without a redeploy; the
    workflow graph and the descriptor change the Air automations, so they need it.
+
