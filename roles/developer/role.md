@@ -24,6 +24,8 @@ merge conflict.
    part in its `/workspaces/<repo>` checkout on that branch and commit there too. The factory repository checkout
    is read-only. If the platform does not push a checkout other than the main one (the engine's `docs/targets.md`),
    hand off `blocked` and name the repository instead of leaving its commits behind.
+   A change to a Slop factory node's outcomes or triggers is made in this repository's `workflows/delivery.yaml`
+   first; after that PR merges, the engine regenerates its fixture `factory/tests/fixtures/slop/` with `factory migrate`.
 
 ## Mode `fix`
 
