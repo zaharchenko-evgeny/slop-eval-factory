@@ -23,7 +23,10 @@ SCRIPT = ROOT / ".air/cloud/startup.sh"
 
 STUBS = {
     "curl": 'echo curl >> "$LOG"\nwhile [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; shift; done\ncat "$STUB_TAR" > "$out"\n',
-    "git": 'echo git "$@" >> "$LOG"\ncase "$1" in\n  clone) [ "${GIT_FAIL:-}" != clone ] || exit 1; mkdir -p "$7/factory" "$7/skills/factory-step"; echo "# factory-step" > "$7/skills/factory-step/SKILL.md" ;;\n  check-ref-format) [ "${GIT_INVALID_REF:-}" != "$2" ] ;;\n  *) exit 0 ;;\nesac\n',
+    "git": 'echo git "$@" >> "$LOG"\ncase "$1" in\n  clone) [ "${GIT_FAIL:-}" != clone ] || exit 1; mkdir -p "$7/factory" "$7/skills/factory-step"; echo "# factory-step" > "$7/skills/factory-step/SKILL.md" ;;\n  check-ref-format) [ "${GIT_INVALID_REF:-}" != "$2" ] ;;\n'
+            # Team checkout commands: GIT_FAIL names a subcommand that fails; REAL_GIT runs them for real.
+            '  -C) [ "${GIT_FAIL:-}" != "$3" ] || exit 1; [ "$2" = "$HOME/factory-main" ] || [ -z "${REAL_GIT:-}" ] || exec "$REAL_GIT" "$@" ;;\n'
+            '  *) exit 0 ;;\nesac\n',
     "gh": "",
     "uv": ('echo uv "$@" >> "$LOG"\nprintf "#!/bin/sh\\n" > "$HOME/.local/bin/decide"; chmod +x "$HOME/.local/bin/decide"\n'
            'if [ "$1 $2 $3" = "tool install --force" ]; then\n'
@@ -99,7 +102,7 @@ class StartupTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         log = self.log.read_text()
         self.assertIn(f"git clone --depth 1 --branch main https://github.com/example/engine.git {self.home}/factory-main", log)
-        self.assertNotIn("factory-team", log)
+        self.assertNotRegex(log, r"git clone .*factory-team")
         self.assertEqual((self.repo / "factory").exists(), False)
         self.assertEqual(self.env.get("FACTORY_TEAM_REPOSITORY"), None)
 
@@ -110,9 +113,44 @@ class StartupTest(unittest.TestCase):
             factory = self.home / ".local/bin/factory"
             env = {"PATH": "/usr/bin:/bin", "HOME": str(self.home)}
             out = subprocess.run([str(factory), "sweep", "--main"], env=env, capture_output=True, text=True)
-            self.assertEqual(out.stdout.strip(), f"team={self.repo.resolve()} args=sweep --main", (launch, out.stderr))
+            self.assertEqual(out.stdout.strip(), f"team={self.home}/factory-team args=sweep --main", (launch, out.stderr))
             own = subprocess.run([str(factory)], env={**env, "FACTORY_TEAM": "/elsewhere"}, capture_output=True, text=True)
             self.assertEqual(own.stdout.strip(), "team=/elsewhere args=")
+
+    def test_factory_team_is_a_worktree_of_origin_main_not_the_edited_branch(self):
+        git = shutil.which("git")
+        run = lambda *args, cwd=self.repo: subprocess.run([git, *args], cwd=cwd, check=True, capture_output=True)
+        origin = Path(self.tmp.name) / "origin.git"
+        run("init", "--quiet", "--bare", "--initial-branch=main", str(origin), cwd=self.tmp.name)
+        run("init", "--quiet", "--initial-branch=main")
+        run("remote", "add", "origin", str(origin))
+        ident = ("-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false")
+        run("add", "-A")
+        run(*ident, "commit", "--quiet", "-m", "main")
+        run("push", "--quiet", "origin", "main")
+        run("checkout", "--quiet", "-b", "ez/1-edit")
+        (self.repo / "roles/developer/skills.txt").write_text("edited-on-branch\n")
+        self.env["REAL_GIT"] = git
+        for launch in (1, 2):  # a relaunch refreshes the worktree instead of adding another
+            result = self.run_script()
+            self.assertEqual(result.returncode, 0, (launch, result.stderr))
+            team = self.home / "factory-team"
+            self.assertNotIn("edited-on-branch", (team / "roles/developer/skills.txt").read_text())
+            head = subprocess.run([git, "rev-parse", "HEAD"], cwd=team, capture_output=True, text=True).stdout
+            main = subprocess.run([git, "rev-parse", "origin/main"], cwd=self.repo, capture_output=True, text=True).stdout
+            self.assertEqual(head, main)
+            out = subprocess.run([str(self.home / ".local/bin/factory"), "env"], env={"PATH": "/usr/bin:/bin"},
+                                 capture_output=True, text=True)
+            self.assertEqual(out.stdout.strip(), f"team={team} args=env", out.stderr)
+        worktrees = subprocess.run([git, "worktree", "list"], cwd=self.repo, capture_output=True, text=True).stdout
+        self.assertEqual(worktrees.count("factory-team"), 1, worktrees)
+
+    def test_team_worktree_failure_stops_startup(self):
+        self.env["GIT_FAIL"] = "fetch"
+        result = self.run_script()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("startup: cannot make the team worktree", result.stderr)
+        self.assertNotIn("factory-team-wrapper", (self.home / ".local/bin/factory").read_text())
 
     def test_project_descriptor_tag_selects_engine_ref(self):
         descriptor = self.repo / "factory.project.yaml"

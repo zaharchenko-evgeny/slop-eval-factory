@@ -8,6 +8,10 @@ repositories:
   url: https://github.com/zaharchenko-evgeny/slop-factory
   default_branch: main
   role: primary
+- name: slop-eval-factory
+  url: https://github.com/zaharchenko-evgeny/slop-eval-factory
+  default_branch: main
+  role: project
 branch_pattern: ez/{ticket}-{slug}
 commit_prefix: '#{ticket} '
 tracker:
@@ -112,6 +116,7 @@ environments:
   write:
     repositories:
     - slop-factory
+    - slop-eval-factory
     startup: .air/cloud/startup.sh
     secrets: []
     domains:
