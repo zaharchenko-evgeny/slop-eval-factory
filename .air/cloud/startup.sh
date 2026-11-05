@@ -95,15 +95,29 @@ if ! install_engine; then
   echo "startup: factory install failed" >&2
   exit 1
 fi
+# ADR-0019: a write node may edit this checkout, so the agent's factory reads the team from $HOME/factory-team,
+# a worktree detached at the checkout's origin/main and refreshed on every launch, never from the checkout.
+TEAM_WORKTREE="$HOME/factory-team"
+make_team_worktree() {
+  git -C "$TEAM" fetch origin main || return 1
+  if [ -e "$TEAM_WORKTREE/.git" ]; then
+    git -C "$TEAM_WORKTREE" checkout --detach origin/main
+  else
+    git -C "$TEAM" worktree prune && git -C "$TEAM" worktree add --detach "$TEAM_WORKTREE" origin/main
+  fi
+}
+if ! make_team_worktree; then
+  echo "startup: cannot make the team worktree $TEAM_WORKTREE" >&2
+  exit 1
+fi
 # The agent's shell does not inherit this script's exports: the factory command carries the team itself.
 if [ -e "$BIN/factory" ] && ! grep -q 'factory-team-wrapper' "$BIN/factory" 2>/dev/null; then
   mv -f "$BIN/factory" "$BIN/.factory-engine"
 fi
-TEAM_DIR=$(cd "$TEAM" && pwd -P)
 cat > "$BIN/factory" <<EOF
 #!/bin/sh
 # factory-team-wrapper: written by .air/cloud/startup.sh
-FACTORY_TEAM=\${FACTORY_TEAM:-$TEAM_DIR}
+FACTORY_TEAM=\${FACTORY_TEAM:-$TEAM_WORKTREE}
 export FACTORY_TEAM
 exec "$BIN/.factory-engine" "\$@"
 EOF
