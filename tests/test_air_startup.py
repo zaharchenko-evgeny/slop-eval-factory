@@ -23,7 +23,7 @@ SCRIPT = ROOT / ".air/cloud/startup.sh"
 
 STUBS = {
     "curl": 'echo curl >> "$LOG"\nwhile [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; shift; done\ncat "$STUB_TAR" > "$out"\n',
-    "git": 'echo git "$@" >> "$LOG"\ncase "$1" in\n  clone) [ "${GIT_FAIL:-}" != clone ] || exit 1; mkdir -p "$7/factory" ;;\n  check-ref-format) [ "${GIT_INVALID_REF:-}" != "$2" ] ;;\n  *) exit 0 ;;\nesac\n',
+    "git": 'echo git "$@" >> "$LOG"\ncase "$1" in\n  clone) [ "${GIT_FAIL:-}" != clone ] || exit 1; mkdir -p "$7/factory" "$7/skills/factory-step"; echo "# factory-step" > "$7/skills/factory-step/SKILL.md" ;;\n  check-ref-format) [ "${GIT_INVALID_REF:-}" != "$2" ] ;;\n  *) exit 0 ;;\nesac\n',
     "gh": "",
     "uv": ('echo uv "$@" >> "$LOG"\nprintf "#!/bin/sh\\n" > "$HOME/.local/bin/decide"; chmod +x "$HOME/.local/bin/decide"\n'
            'if [ "$1 $2 $3" = "tool install --force" ]; then\n'
@@ -124,6 +124,7 @@ class StartupTest(unittest.TestCase):
         for base in (self.home / ".agents/skills", self.home / ".claude/skills"):
             self.assertTrue((base / "tdd/SKILL.md").is_file())
             self.assertTrue((base / "diagnosing-bugs/SKILL.md").is_file())
+            self.assertTrue((base / "factory-step/SKILL.md").is_file())
 
     def test_missing_team_skill_fails_without_engine_fallback(self):
         shutil.rmtree(self.repo / "skills/tdd")

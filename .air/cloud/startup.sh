@@ -109,6 +109,13 @@ chmod +x "$BIN/factory"
 if [ "${FACTORY_ENV:-default}" = ops ] && [ ! -e "$TEAM/factory" ] && [ ! -L "$TEAM/factory" ]; then
   ln -s "$ENGINE/factory" "$TEAM/factory"
 fi
+install_skill() {
+  for d in "$HOME/.agents/skills" "$HOME/.claude/skills"; do
+    mkdir -p "$d"
+    rm -rf "${d:?}/$2"
+    cp -R "$1" "$d/$2"
+  done
+}
 for s in $(skill_names); do
   case "$s" in
     ""|.|..|*/*) echo "startup: invalid skill name: $s" >&2; exit 1 ;;
@@ -118,13 +125,15 @@ for s in $(skill_names); do
     echo "startup: missing team skill: $s" >&2
     exit 1
   fi
-  for d in "$HOME/.agents/skills" "$HOME/.claude/skills"; do
-    mkdir -p "$d"
-    rm -rf "${d:?}/$s"
-    cp -R "$src" "$d/$s"
-  done
+  install_skill "$src" "$s"
 done
-echo "startup: installed skills: $(skill_names)"
+# The engine's own skills are the same for every team: factory-step tells each role how to report its outcome.
+if [ -f "$ENGINE/skills/factory-step/SKILL.md" ]; then
+  install_skill "$ENGINE/skills/factory-step" factory-step
+else
+  echo "startup: engine ref $REF has no skill factory-step" >&2
+fi
+echo "startup: installed skills: $(skill_names) factory-step"
 for t in $TOOLS; do
   uv tool install --quiet "$t" || { echo "startup: tool install failed: $t" >&2; exit 1; }
 done
