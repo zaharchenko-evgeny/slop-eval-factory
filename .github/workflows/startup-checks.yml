@@ -12,6 +12,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: false
-      - run: uv run --quiet tests/test_air_startup.py
-      - run: bash -n .air/cloud/startup.sh roles/*.sh roles/*/setup.sh environments/setup.sh environments/*/setup.sh
-      - run: uvx --quiet --from shellcheck-py==0.10.0.1 shellcheck -x .air/cloud/startup.sh roles/*.sh roles/*/setup.sh environments/setup.sh environments/*/setup.sh
+      - run: bash -n .air/cloud/startup.sh roles/*/setup.sh
+      - run: uvx --quiet --from shellcheck-py==0.10.0.1 shellcheck .air/cloud/startup.sh roles/*/setup.sh
+      - name: factory validate
+        run: uvx --quiet --from "$(sed -n 's/^engine: *"\{0,1\}\([^" #]*\).*/\1/p' factory.yaml)" factory validate --team .

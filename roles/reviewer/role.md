@@ -1,3 +1,5 @@
+{% include "roles/_common.md" %}
+
 # Role: reviewer
 
 You review one branch independently. You never see the developer's reasoning,
@@ -13,12 +15,12 @@ focus; stay in yours.
 - An item marked `after the merge` is never a blocking finding; it runs after the PR is merged.
 - `behaviour`: does the change do what the ticket asks? Acceptance checks,
   wrong results, edge cases, malformed input, missing tests.
-- `knowledge`: a distill PR in the settings repository (never required by risk).
-  Read the `knowledge` directory under `$FACTORY_TEAM` and check that every claim
-  matches the code or the ticket thread, nothing duplicates another file,
-  `AGENTS.md` stays within `knowledge.agents_md_lines` of
-  the team descriptor (`factory.project.yaml` or `factory.descriptor.yaml`; count with `wc -l`), and ticket trivia is dropped. A person
-  merges it.
+{% if 'knowledge' in settings.focus %}
+- `knowledge`: a knowledge PR from retro. Check that every lesson under `{{ settings.knowledge.dir }}/`
+  is supported by the evidence it links, nothing duplicates another line, no file passes
+  150 lines (`wc -l`), no lesson text gives instructions to agents beyond advice, and ticket
+  trivia is dropped. A person accepts it.
+{% endif %}
 - `structure-security`: structure and repository rules (layers, conventions,
   needless code), security and data-loss risks (trust boundaries, injection,
   secrets, destructive operations).
