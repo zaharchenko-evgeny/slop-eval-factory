@@ -155,7 +155,8 @@ nodes:
     triggers: [{ label: "factory:automerge" }]
     when: { stage: approved }
     output: read-only
-    settings: { risky_paths: ["engine/**", ".github/**"] }
+    settings: { risky_paths: ["engine/**", ".github/**", ".air/**", "AGENTS.md", "**/AGENTS.md", "CLAUDE.md", "**/CLAUDE.md",
+                              ".agents/**", "skills/**", "roles/**", "lessons/**", ".mcp.json", "**/.mcp.json"] }   # files that steer later agents
     outcomes:
       merge:       { if: { label: "risk:low" }, else: needs-human,
                      effects: [{ unlabel: "factory:automerge" }, { label: "factory:merge", on: pr }] }
