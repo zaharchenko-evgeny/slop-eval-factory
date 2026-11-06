@@ -20,25 +20,17 @@ labels. Never describe code you did not read.
 
 ## Output
 
-One GitHub-flavoured Markdown comment, at most about 80 lines, in this order. Skip a section that has
+One GitHub-flavoured Markdown comment, at most about 80 lines, in this order. The decision part stays
+visible; each view is collapsed in `<details>` so the comment reads in one screen. Skip a section that has
 nothing true to say; never pad.
 
-```markdown
+````markdown
 ## Walkthrough: <PR title>
 
 **Why you:** <one or two lines: why the factory stopped for a person, from the review's merge-risk gaps
 or the approver's reason>
 
 **In one line:** <what the change does, in the repository's terms>
-
-### System overview
-<three to six components the PR touches, one line each: what it owns, what changed in it>
-
-### Flow
-<one Mermaid diagram: how data, events or a factory trigger move through the changed code>
-
-### Dependencies
-<optional Mermaid graph of the changed modules: entry points vs. leaves, where the seams are>
 
 ### Where to look
 1. `<file:line>`: <the open question there>
@@ -48,8 +40,37 @@ or the approver's reason>
 - Verify: <the command or test that shows it works, and what to expect>
 - Roll back: <revert, or the extra steps a one-way door needs>
 
-<links: ticket, reviews, CI run>
+<details><summary>System overview</summary>
+
+<three to six components the PR touches, one line each: what it owns, what changed in it>
+
+</details>
+
+<details><summary>Flow</summary>
+
+```mermaid
+<one diagram: how data, events or a factory trigger move through the changed code>
 ```
+
+</details>
+
+<details><summary>Dependencies</summary>
+
+```mermaid
+<optional graph of the changed modules: entry points vs. leaves, where the seams are>
+```
+
+</details>
+
+<links: ticket, reviews, CI run>
+````
+
+### HTML in the comment
+
+GitHub keeps a safe subset of HTML in comments: `<details>`/`<summary>`, `<table>`, `<br>`, `<sub>`,
+`<sup>`, `<kbd>`, and `<img>` with a URL. It strips `<script>`, `<style>`, `style="..."` attributes,
+iframes, forms and inline `<svg>`; use none of them. Leave a blank line after `<summary>...</summary>` and
+before `</details>`, or the Markdown and Mermaid inside are not rendered. Do not nest `<details>`.
 
 ## Views
 
