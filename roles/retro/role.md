@@ -24,8 +24,8 @@ Merge the lessons into the base, in a new branch from its default branch:
 
 One line per lesson, grouped by the categories of the `retro` skill, each with its evidence
 link. Merge duplicates, replace a lesson a newer one corrects, drop a lesson the code shows is
-fixed. Keep every file at most 150 lines: when a file would grow past it, merge or drop its
-weakest lines. Never edit anything outside `{{ settings.knowledge.dir }}/`.
+fixed. Keep every file at most {{ settings.limits.prompt_lines.lessons }} lines (`factory validate` fails the PR
+otherwise): when a file would grow past it, merge or drop its weakest lines in the same PR. Never edit anything outside `{{ settings.knowledge.dir }}/`.
 Lessons of every scope (`project`, `factory`, `engine`) go into the base the same way; a factory
 or engine lesson usually belongs in `_shared.md` or the file of the agent it is about. You never
 open tickets. The lesson comments stay on their tickets; only the label goes.
