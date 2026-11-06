@@ -7,6 +7,7 @@ metadata:
     author: Matt Pocock
     url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/pr/SKILL.md"
     based_on: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
+    review_guide_from: "https://github.com/warpdotdev/common-skills/blob/main/.agents/skills/write-pr-description/SKILL.md"
 ---
 
 Write the PR body with this template. Skip preambles; keep prose brief; use the repository's own terms.
@@ -17,6 +18,8 @@ Closes #<ticket>   (or `Part of #<ticket>` when the PR does not finish it)
 ## Summary
 
 <one or two sentences, then the smallest sketch that shows the change>
+
+## Review guide   (only when warranted, see below)
 
 ## Evidence
 
@@ -56,9 +59,23 @@ Show that the change works, before and after. Execution is the evidence: the exa
 passes, or the command output that changed. Name a check you could not run and why. Do not paste long logs;
 quote the lines that matter.
 
+## Review guide
+
+Add it when the reading order is not obvious, when you want attention somewhere specific, or when the change
+can break things well beyond the files it touches; skip it when a competent reviewer knows where to look.
+It holds some of: a reading order (files or commits) for a PR large enough that order matters; focus areas,
+meaning what you are unsure of, security-relevant surfaces, decisions with a real alternative, and genuine
+one-way doors. Point at the code and the open question; do not explain the code.
+
 ## Merge danger
 
 A two-way door is undone by a plain revert. A one-way door is not: deleting or renaming automations or
 labels, stage-history or format migrations, changes published outside the repository, or an order the
 repositories must merge in. The blast radius is who or what breaks if the change is wrong (every ticket in
 flight, one node, deploy only, docs only).
+
+## Self-check
+
+Before you finish: every claim in the body is one you checked by looking (a command, the code), not one you
+inferred or copied from a commit message; nothing repeats what the diff already shows; no section is padding.
+Cut a sentence that does neither.
