@@ -15,4 +15,6 @@ jobs:
       - run: bash -n .air/cloud/startup.sh roles/*/setup.sh
       - run: uvx --quiet --from shellcheck-py==0.10.0.1 shellcheck .air/cloud/startup.sh roles/*/setup.sh
       - name: factory validate
-        run: uvx --quiet --from "$(sed -n 's/^engine: *"\{0,1\}\([^" #]*\).*/\1/p' factory.yaml)" factory validate --team .
+        run: |
+          engine=$(sed -n 's/^engine: *"\{0,1\}\([^" #]*\).*/\1/p' factory.yaml)
+          uvx --quiet --from "$engine" factory validate --team .
