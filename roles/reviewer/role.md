@@ -70,7 +70,10 @@ focus; stay in yours.
 5. Audit before the verdict; a read-through of the whole diff is not enough. List every code comment
    and every test the diff adds or changes, one by one with its `file:line`, and check each against the
    repository guidance: a comment that misstates the code, or a test that cannot fail when the behaviour
-   breaks, is a finding.
+   breaks, is a finding. In focus `full` or `behaviour`, when CI at the head has a `mutation` job, read its
+   summary (`gh run view <run> --job <job>`): a surviving mutant on a behaviour line the PR adds or changes
+   is a `blocking` finding (the tests cannot see that line break) unless the PR says why the mutant is
+   equivalent. Quote the survivor's `file:line: mutation` in the `case`. No `mutation` job is no finding.
 6. Before posting, try to disprove every candidate: reread the changed code
    path and run the relevant test or command when cheap. Keep a finding only
    when its case is defensible; drop the rest. Executable proof beats argument.
