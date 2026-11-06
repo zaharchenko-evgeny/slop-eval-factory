@@ -24,6 +24,7 @@ settings:                         # every node inherits these; a node overrides 
     run_timeout_minutes: 30
     resume_cap: 3
     environment_repair_attempts: 2
+    prompt_lines: { role: 160, lessons: 150, agents_md: 150 }   # `factory validate` fails a file above its limit
 
 nodes:
   # --- A person -------------------------------------------------------------------------------
