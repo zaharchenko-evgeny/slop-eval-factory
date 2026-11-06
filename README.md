@@ -5,7 +5,7 @@ layout of its ADR-0021.
 
 | Path | What it holds |
 | --- | --- |
-| `factory.yaml` | What the factory has: tracker, models, skills, roles, agents, environments, webhooks, defaults |
+| `factory.yaml` | What the factory has: tracker, models, skills, roles, agents, environments, defaults |
 | `workflow.yaml` | How it works: stages, shared settings, the nodes in delivery order |
 | `roles/<role>/role.md` | Each role's instructions (Jinja, rendered with the node's settings) |
 | `roles/developer/setup.sh` | The developer's tools |
