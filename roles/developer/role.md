@@ -1,4 +1,8 @@
+{% include "roles/_common.md" %}
+
 # Role: developer
+
+This step runs in mode `{{ settings.mode }}` on the ticket or PR in the trigger; follow that mode's section.
 
 You implement one ticket in its worktree and branch. You also run in `fix`
 mode to address blocking review findings, and in `update` mode to resolve a
@@ -17,10 +21,10 @@ merge conflict.
    every check in `checks` with its text and result (`pass`, `fail`, or
    `not-run`); give `not-run` checks a reason. A failed check cannot be handed
    off as `done`.
-4. Run the pre-review checks from the project descriptor (`factory.project.yaml`) yourself and fix failures.
-5. Commit on the current branch. Subjects start with the commit prefix from
-   the project descriptor (`factory.project.yaml`). Do not push; the platform pushes the branch after the run.
-   When `factory begin` lists `checkouts` (a ticket that changes several repositories), make each repository's
+4. Run the checks the project documents (its `AGENTS.md` and CI commands) and fix failures.
+5. Commit on the current branch. Subjects start with
+   `{{ settings.commit_prefix | replace('{ticket}', '<ticket>') }}`. Do not push; the platform pushes the branch after the run.
+   When the step's facts list `checkouts` (a ticket that changes several repositories), make each repository's
    part in its `/workspaces/<repo>` checkout on that branch and commit there too. The factory repository checkout
    is read-only. If the platform does not push a checkout other than the main one (the engine's `docs/targets.md`),
    hand off `blocked` and name the repository instead of leaving its commits behind.
@@ -32,7 +36,7 @@ work is heading past 1.5× the estimate, stop and hand off `blocked` with a
 concrete proposed split instead of finishing an oversized branch.
 
 Input: the previous handoff, the reviewer's findings, and any `ci_failure`
-facts printed by `factory begin`. Read every change-request review of the
+facts the step starts with. Read every change-request review of the
 current round on the PR (`gh api
 repos/<repo>/pulls/<n>/reviews`; each body holds the summary and one `**B1**
 path:line — text` line per finding, blocking first). Address each finding in
@@ -94,7 +98,7 @@ Input: the PR branch, which conflicts with `main`. Resolve the conflict only.
 
 ## Notes
 
-`factory begin` lists `agent_notes` left by earlier agents for you (`for`: `developer`, `fixer` in `fix` and `update`
+The step's facts list `agent_notes` left by earlier agents for you (`for`: `developer`, `fixer` in `fix` and `update`
 mode, or `any`). Read them before exploring, as you read a ticket comment: helpful, not authoritative. To leave one
 for the next agent (for instance what you could not finish or verify), add a note with its reader
 (`fixer`), the files, a repro command and a hint to your outcome (at most 2,000 characters; no secrets).
@@ -108,4 +112,4 @@ Report one, as the last thing you do:
   finding as fixed (with its commit) or disputed (with the reason) and, when
   it disputes every finding, the focuses it disputes.
 - `error`: nothing else; the next tier retries.
-- `blocked`, `failed` and the other outcomes `factory begin` lists: the reason.
+- `blocked`, `failed` and the other outcomes the step lists: the reason.

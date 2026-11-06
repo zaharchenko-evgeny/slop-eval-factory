@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Checks that the developer role can run locally. Run from the repository root.
+# Tools the developer runs before review. Pinned versions; idempotent (a resumed run has them).
 set -euo pipefail
-here=$(cd "$(dirname "$0")" && pwd)
-# shellcheck source=roles/_setup-common.sh
-. "$here/../_setup-common.sh"
-need_tools git
-need_skills "$here/skills.txt"
-echo "developer: ready"
+for t in shellcheck-py==0.10.0.1 jactionlint==2.3.0; do
+  uv tool install --quiet "$t" || { echo "developer setup: tool install failed: $t" >&2; exit 1; }
+done
