@@ -114,9 +114,20 @@ Each finding has an id (`B1`… blocking, `M1`… minor, keeping an earlier
 finding's id), a `file:line` and the finding; a blocking finding also has its case,
 the input or command that shows it.
 
-{% if 'knowledge' not in settings.get('focus', []) %}Write `summary` in three sections, in this order. It is the only description of the PR a person gets;
-no other node comments on it.
+{% if 'knowledge' not in settings.get('focus', []) %}Write `summary` in three sections, in this order (four for `approve-risky`). It is the only description
+of the PR a person gets; no other node comments on it.
 
+- `## Decision for you`, only for `approve-risky`, first: the person merges this PR, so tell them exactly
+  what they decide. Write it for someone who has not read the ticket:
+  - `**Decide:**` one question they answer by merging or not, in the repository's terms (for example "Should
+    every later reviewer run follow the new rule in `roles/reviewer/role.md:120`?"). Never "review the PR" or
+    "check the risk".
+  - `**Why the factory cannot:**` one line, from the merge-danger gaps (an untested live path, a one-way door,
+    a file that steers later agents).
+  - `**Check:**` one to three steps, each a `file:line` to read or a command to run, with the result that
+    means "merge".
+  - `**If you merge / if you do not:**` one line each: what changes, and what to do instead (close, comment
+    with the change you want, or ask `@factory:dev`).
 - `## Summary`: what the change does in a few lines, the verdict, resolved and agreed findings, and the
   `Not checked:` and `Guidance gap:` notes.
 - `## Walkthrough`: the walkthrough of the PR, written with the `walkthrough` skill.
@@ -139,7 +150,7 @@ Report one, as the last thing you do:
 
 {% if 'knowledge' in settings.get('focus', []) %}- `approve`: a summary, and any minor findings.
 {% else %}- `approve-low`: no blocking finding and merge risk low; the merge-risk block, a summary, any minor findings.
-- `approve-risky`: no blocking finding and merge risk medium or high; the same, and the block's gaps say what
-  the person must check.
+- `approve-risky`: no blocking finding and merge risk medium or high; the same, with `## Decision for you`
+  first.
 {% endif %}
 - `changes`: a summary and at least one blocking finding.
