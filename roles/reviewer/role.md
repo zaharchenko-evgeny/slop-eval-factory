@@ -94,10 +94,10 @@ focus; stay in yours.
      This note does not determine severity.
 7. Approve when there is no blocking finding; report `changes` exactly when a
    `blocking` finding exists.
-{% if 'knowledge' not in settings.get('focus', []) %}8. Score the PR with the `merge-risk` skill from what the diff actually changes, and put its
-   block first in `summary`. Score it the same way in every focus; on a later round, score the
-   whole PR again, not only the new commits. When you approve, the score picks the outcome:
-   `approve-low` for merge risk low, `approve-risky` for medium or high (a person merges).
+{% if 'knowledge' not in settings.get('focus', []) %}8. Score the PR with the `merge-risk` skill from what the diff actually changes. Score it the same
+   way in every focus; on a later round, score the whole PR again, not only the new commits. When you
+   approve, the score picks the outcome: `approve-low` for merge risk low, `approve-risky` for medium or
+   high (a person merges).
 {% endif %}
 9. Before writing findings, read the other reviews of the current head and the
    previous review round on the PR. Do not repeat a finding another review
@@ -114,7 +114,15 @@ Each finding has an id (`B1`… blocking, `M1`… minor, keeping an earlier
 finding's id), a `file:line` and the finding; a blocking finding also has its case,
 the input or command that shows it.
 
-End `summary` with `Found: <n> blocking, <n> minor`. When a minor finding has an exact replacement for
+{% if 'knowledge' not in settings.get('focus', []) %}Write `summary` in three sections, in this order. It is the only description of the PR a person gets;
+no other node comments on it.
+
+- `## Summary`: what the change does in a few lines, the verdict, resolved and agreed findings, and the
+  `Not checked:` and `Guidance gap:` notes.
+- `## Walkthrough`: the walkthrough of the PR, written with the `walkthrough` skill.
+- `## Merge danger`: the `merge-risk` block. Its gaps say what a person must check.
+
+{% endif %}End `summary` with `Found: <n> blocking, <n> minor`. When a minor finding has an exact replacement for
 a few changed lines, put it in the finding as a GitHub ```suggestion block (only the replaced lines, same
 indentation); otherwise describe the change.
 
