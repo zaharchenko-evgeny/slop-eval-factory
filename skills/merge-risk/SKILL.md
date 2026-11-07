@@ -35,11 +35,16 @@ A ✅ verdict means low risk for that category.
   size: the gate and its effects, outcome and guard vocabulary, deploy and Air automations, schemas,
   `.github/**`, secrets and tokens, tracker writes (labels, stages, comments), merge logic, and anything a
   later factory run reads. Flag every one touched, and call out anything that widens access, weakens a
-  check, or logs a secret.
+  check, or logs a secret. A sensitive area makes impact large only when the diff changes what the
+  deployed workflow does now. New code that no node of the team's workflow calls yet (a new effect,
+  adapter or option) is medium at most. The PR that wires it in carries the impact.
 - **Verification (poor ⚠️ / decent 👀 / good ✅):** the behaviour is shown to work. A behaviour change needs
   before-and-after evidence: the test that failed and now passes, or command output that changed
   (`factory decide --dry-run`, a deploy plan, a fixture comparison). Untested edge cases are gaps unless the
-  PR names them. Unit tests alone for a gate or deploy change are at best 👀.
+  PR names them. Unit tests alone for a gate or deploy change are at best 👀. Tests that drive the changed
+  path through apply, decide or the deploy plan, with an unchanged team fixture plan, are ✅. A live check
+  that the factory cannot run (a live Air deploy, live tracker writes) is not a gap. Put it under
+  `Not checked` as a step to do after the deploy.
 - **Rollback cost (high ⚠️ / medium 👀 / low ✅):** one-way or two-way door. A plain revert undoes a two-way
   door. One-way doors: deleting or renaming Air automations, environments or labels; rewriting stage history;
   data or format migrations; a change that needs the team repository merged before the engine; anything
