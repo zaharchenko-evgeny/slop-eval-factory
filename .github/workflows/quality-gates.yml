@@ -1,0 +1,66 @@
+name: quality-gates
+
+# The CI the factory's gate reads (environment `ci: { workflow: quality-gates }`): a team PR gets reviewed only
+# after this workflow is green at its head, and the `ci-label` job wakes the reviewer.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-workflow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with: { node-version: 22 }
+      - run: pipx install uv
+      - name: Shell syntax
+        run: bash -n .air/cloud/startup.sh roles/*/setup.sh scripts/*.sh
+      # The runner's Java 11+ runs TLC. The statechart skill is not in the installed package: run the command from a checkout of the pinned engine.
+      - name: Check out the pinned engine
+        run: |
+          engine=$(sed -n 's/^engine: *"\{0,1\}\([^" #]*\).*/\1/p' factory.yaml)
+          url=${engine#git+}
+          ref=${url##*@}
+          url=${url%@*}
+          git clone --quiet "$url" "$RUNNER_TEMP/engine"
+          git -C "$RUNNER_TEMP/engine" checkout --quiet "$ref"
+      - name: factory validate
+        run: uv run --quiet "$RUNNER_TEMP/engine/factory/cli.py" --team . validate
+      - name: factory check-workflow
+        run: uv run --quiet "$RUNNER_TEMP/engine/factory/cli.py" check-workflow .
+
+  # The CI label is the result of every job: it runs last, so the run is about to complete when the label wakes a
+  # reviewer, and the reviewer reads the same result from the workflow runs instead of `pending`.
+  ci-label:
+    needs: [check-workflow]
+    if: always() && github.event_name == 'pull_request' && startsWith(github.head_ref, 'ez/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      statuses: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { persist-credentials: false }
+      - name: Label the PR with this run's CI result
+        env:
+          BRANCH: ${{ github.head_ref }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          CONCLUSION: ${{ contains(needs.*.result, 'failure') && 'failure' || (contains(needs.*.result, 'cancelled') && 'cancelled' || (contains(needs.*.result, 'skipped') && 'skipped' || 'success')) }}
+        run: scripts/ci-state-label.sh
