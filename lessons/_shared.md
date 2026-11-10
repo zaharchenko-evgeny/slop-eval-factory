@@ -1,56 +1,28 @@
-# Retro: 28–29 October 2026
+# Lessons: every repository and agent
 
-Scope: the first two days of the factory building itself, from the design to
-unattended scheduled runs. Numbers come from `.factory/runs/*/events.log`, run
-files and pi session logs; wall times are from file timestamps.
+## Information access
 
-## Numbers
+- `~/.agents/skills` is stale in some sandboxes (5 of 10 skills), so doctor's `skill:*` alarms recur from it; check the skill list before you blame the change (#964, #967, `factory/doctor.py skill_installed`).
+- A fix-mode checkout can be shallow or grafted with no merge base; run `git fetch --unshallow origin` before a merge or `git diff origin/main...HEAD` (#785, #860).
+- Check that a config key a ticket cites exists before you plan on it (#1052, `engine/defaults.yaml`).
 
-Unattended runs since lean prompts (#51–#76, 9 tickets): $12.71.
+## Automated checks
 
-| Ticket | Cost | Fix rounds | Note |
-| --- | --- | --- | --- |
-| #68 scheduler | $0.14 | 1 | Sonnet developer |
-| #72 keychain | $0.52 | 1 | |
-| #74 central | $0.95 | 0 | CI job stuck 32 min |
-| #51 doc-writer | $0.98 | 0 | |
-| #76 harnesses | $1.00 | 1 | Opus stream broke, pi hung 25 min |
-| #59 merged state | $1.16 | 0 | |
-| #53 distill | $1.69 | 1 | |
-| #61 loop | $1.76 | 0 | |
-| #52 retro | $4.51 | 2 + restart | blocked on a design conflict |
+- Diff against the PR base before handoff; a branch carried unrelated files (fixture symlinks, README) and caused 5 test failures (#897, commit 2f45ac2).
+- Reproduce a check that fails with no output on `origin/main` in a clean worktree before you blame the change; the agnix pre-review check exited 1 that way (#1167, commit aa261b7).
 
-- By role: developer $11.93 (94%), reviewers $0.66, router, doc-writer and retro $0.12.
-- By model: Opus $10.12 (80%), Sonnet $2.45, Haiku $0.15, Qwen $0.
-- Extra attempts: about 30 (behaviour review 10, structure-security 5, implement 5, diagnose 5).
-- Fallbacks: Qwen → Haiku in 10 of about 13 behaviour reviews; Sonnet 3; Opus 3.
-- Whole effort: coordinating session about $248, Opus orchestrator subagents up to $118, developer sessions before lean prompts about $21, unattended runs about $13. About 90% went into coordination.
+## Pushing and branches
 
-## What went well
+- A push is rejected when an old branch from a closed PR exists on origin; use a new slug (#652).
+- `git push` with `FACTORY_WRITE_TOKEN` in the URL failed for slop-factory; plain `git push origin` worked (#837).
+- After a file move on main, `git merge` mangles the conflict region: take theirs and reapply the patch by hand (#1052, merge 380ebdd).
 
-- Tracker stages as states, a deterministic engine, claims, risk-based reviewers and the human merge gate held up.
-- The factory built itself: 30 tickets through ticket → PR → CI → merge, the last ten unattended; since #59 the machine also sets `done`.
-- The Sonnet structure-security reviewer found real defects five times (forged vars, `base:` command injection, lost verdicts, missing labels, git write access).
-- Per-role cost records and lean prompts (first-turn cache 178k → 11k tokens).
-- Gates stopped a real design conflict (#52) instead of guessing.
+## No-ops and routing
 
-## What went badly
+- An acceptance check that needs a new operator-set secret cannot pass before merge, and the review blocks on not-run; mark it as an operator step on the ticket (#652, PR 905 review B1).
+- A reviewer finding that asks to delete code a live path still uses needs a scope decision on the ticket; the fixer cannot resolve it (#951, PR #1046 B1).
+- Route an out-of-scope blocking finding straight to a person instead of spending a fix round; a fix round with no change ends blocked anyway (#52).
 
-- Long interactive coordination and Opus orchestrators cost far more than the work.
-- Handoff format failures from every model were the main source of retries; Qwen rarely produced a valid tool-using review.
-- `risk:high` sent most tickets to Opus.
-- Defects found only in live runs: ignored splits, no role timeout, pending CI treated as approved, missing stage label, non-atomic `set_state`, loop not checking claims (#56).
-- Two PRs merged in parallel broke `main` once (#48).
-- Human-gate latency and approver accuracy were not measured.
+## AGENTS.md and docs
 
-## Improvements
-
-| Rank | Change | Status |
-| --- | --- | --- |
-| 1 | Short coordinating sessions; the scheduler drives; status from a report command | practice |
-| 2 | Only Haiku 5.5 and Sonnet 5.5 | done in #79 |
-| 3 | Behaviour reviewer on Haiku instead of Qwen | done in #79 |
-| 4 | Structured handoffs written to a file | ticket |
-| 5 | Driver gaps | #56 |
-| 6 | Timestamped run log and `drive.py report` | ticket |
-| 7 | Record human merge decisions next to the approver verdict to calibrate it | after the run log |
+- List `docs/design.md` and `docs/adr/` in a ticket's affected files when the change alters a documented flow; otherwise they stay stale (#52, ADR-0007).
