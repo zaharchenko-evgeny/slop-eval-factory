@@ -1,7 +1,7 @@
 name: quality-gates
 
-# The CI the factory's gate reads (environment `ci: { workflow: quality-gates }`): a team PR gets reviewed only
-# after this workflow is green at its head, and the `ci-label` job wakes the reviewer.
+# The team repository's own CI. The factory reads it like any project's checks: the reviewer waits for it after
+# its review, and `ci-sync` labels the PR from it.
 on:
   pull_request:
   push:
@@ -39,28 +39,3 @@ jobs:
         run: uv run --quiet "$RUNNER_TEMP/engine/factory/cli.py" --team . validate
       - name: factory check-workflow
         run: uv run --quiet "$RUNNER_TEMP/engine/factory/cli.py" check-workflow .
-
-  # The CI label is the result of every job: it runs last, so the run is about to complete when the label wakes a
-  # reviewer, and the reviewer reads the same result from the workflow runs instead of `pending`.
-  ci-label:
-    needs: [check-workflow]
-    if: always() && github.event_name == 'pull_request' && startsWith(github.head_ref, 'ez/')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
-      statuses: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      GH_REPO: ${{ github.repository }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with: { persist-credentials: false }
-      - name: Label the PR with this run's CI result
-        env:
-          BRANCH: ${{ github.head_ref }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-          CONCLUSION: ${{ contains(needs.*.result, 'failure') && 'failure' || (contains(needs.*.result, 'cancelled') && 'cancelled' || (contains(needs.*.result, 'skipped') && 'skipped' || 'success')) }}
-        run: scripts/ci-state-label.sh
