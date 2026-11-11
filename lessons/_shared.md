@@ -5,6 +5,10 @@
 - `~/.agents/skills` is stale in some sandboxes (5 of 10 skills), so doctor's `skill:*` alarms recur from it; check the skill list before you blame the change (#964, #967, `factory/doctor.py skill_installed`).
 - A fix-mode checkout can be shallow or grafted with no merge base; run `git fetch --unshallow origin` before a merge or `git diff origin/main...HEAD` (#785, #860).
 - Check that a config key a ticket cites exists before you plan on it (#1052, `engine/defaults.yaml`).
+- The skills install in engine sandboxes is incomplete (3 of the declared skills); the cause is `team_setup.roles_in` ignoring `settings.environments` and node `environments`, so setup skips skills of nodes without their own environment (#1179, #1180, #1182, `factory/team_setup.py`).
+- Doctor files one ticket per missing skill and one per repeated token-scope 403, and each enters triage as buildable work; group them into one ticket per cause before you plan work (#1181, #1224, #1225).
+- `factory doctor --help` runs the real probes and writes to the tracker (created #1187, #1193); never run it to read help (#1178, #1179).
+- Verify a ticket's claim about code before triage; ticket 1127 said `check_refs.py` skips `engine/template-v1`, but line 64 scans it (#1127, `factory/check_refs.py:64`).
 
 ## Automated checks
 
@@ -22,6 +26,7 @@
 - An acceptance check that needs a new operator-set secret cannot pass before merge, and the review blocks on not-run; mark it as an operator step on the ticket (#652, PR 905 review B1).
 - A reviewer finding that asks to delete code a live path still uses needs a scope decision on the ticket; the fixer cannot resolve it (#951, PR #1046 B1).
 - Route an out-of-scope blocking finding straight to a person instead of spending a fix round; a fix round with no change ends blocked anyway (#52).
+- An acceptance check built on a grep count can never hold when a similar name matches too (`grep def ci_sync` also finds `ci_sync_pr`); anchor the pattern (#951, `factory/factory_plugins/github/ci_sync.py`).
 
 ## AGENTS.md and docs
 
