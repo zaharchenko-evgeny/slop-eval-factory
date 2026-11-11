@@ -10,6 +10,8 @@
 - `test_readme.py` rewrites the `fixtures/team` symlinks to local paths; revert them before commit (#890).
 - A test that calls `deploy.main(--apply)` must mock every external writer, or it hits the real GitHub API in CI (#891, `factory/tests/test_deploy.py`).
 - A new `validate` rule can fail the factory-setup template and the slop fixture; check both. If the team repo breaks the rule, merge the team PR first, then regenerate the fixture (CI pins `SOURCE`) (#995, `skills/factory-setup/tests/test_templates.py`).
+- `factory/tests/fixtures/slop` mirrors `slop-eval-factory`; apply the same `factory.yaml` token edit and `issues_token_env` removal there, or the SOURCE check fails (#1236).
+- The sandbox sets `FACTORY_ENV`, `FACTORY_ENV_REPOSITORY` and `FACTORY_ISSUES_TOKEN`; tests that read the process environment must patch them (#1236, `test_gate_github.py CiSyncCodeHostTest`).
 
 ## Coding standards
 
