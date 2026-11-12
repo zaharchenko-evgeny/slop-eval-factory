@@ -27,6 +27,7 @@
 - A reviewer finding that asks to delete code a live path still uses needs a scope decision on the ticket; the fixer cannot resolve it (#951, PR #1046 B1).
 - Route an out-of-scope blocking finding straight to a person instead of spending a fix round; a fix round with no change ends blocked anyway (#52).
 - An acceptance check built on a grep count can never hold when a similar name matches too (`grep def ci_sync` also finds `ci_sync_pr`); anchor the pattern (#951, `factory/factory_plugins/github/ci_sync.py`).
+- Reconcile re-fires implement on a ticket whose PR was closed as not needed, and the fix loop then runs on an obsolete PR; check the ticket's PR state and the closing reason before you start work (#1264, PR 1275, PR 1284).
 
 ## AGENTS.md and docs
 

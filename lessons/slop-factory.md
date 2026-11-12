@@ -12,6 +12,10 @@
 - A new `validate` rule can fail the factory-setup template and the slop fixture; check both. If the team repo breaks the rule, merge the team PR first, then regenerate the fixture (CI pins `SOURCE`) (#995, `skills/factory-setup/tests/test_templates.py`).
 - `factory/tests/fixtures/slop` mirrors `slop-eval-factory`; apply the same `factory.yaml` token edit and `issues_token_env` removal there, or the SOURCE check fails (#1236).
 - The sandbox sets `FACTORY_ENV`, `FACTORY_ENV_REPOSITORY` and `FACTORY_ISSUES_TOKEN`; tests that read the process environment must patch them (#1236, `test_gate_github.py CiSyncCodeHostTest`).
+- `uv run factory/nodes.py validate` fails on `origin/main` with `unknown-effect: notify-pr.notified` (`assign` on `pr`); report `env-broken`, do not fix it in an unrelated ticket (#1243, #1286).
+- Tests that read the global team break under one-process pytest; pin the slop team in `setUpModule` or `setUpClass` (`test_deploy.py` PlanTest, `test_reconcile.py` ReconcileMainBlockersTest) (#681, CI factory-checks).
+- `test_gate_space.py test_definition_validation_names_the_environment_vcs` fails without `jinja2` in the script deps, also on `origin/main`; report `env-broken` (#681).
+- `factory/check_refs.py` treats any backticked absolute path such as `/workspaces` in docs as a missing repo path; avoid backticks around such paths (#1237, `docs/environment.md`).
 
 ## Coding standards
 
@@ -27,3 +31,8 @@
 - A router `factory doctor` run writes to live issues and PRs, and its `read:actions-run-logs` probe fails with "log not found" for an unknown cause (#732, #968).
 - `FACTORY_ISSUES_TOKEN` cannot write the `blocked_by` dependency API (403), so the router cannot link split tickets (#652, `POST .../issues/70/dependencies/blocked_by`).
 - A rendered YouTrack team still reports `unlinked-project`: the template has GitHub label triggers and no state stores (#903).
+- A new `factory_plugins/<name>` package must be listed in `pyproject.toml` `packages`, or the wheel lacks it and its CLI command resolves to None (#1255, #1128).
+- The GitHub gate store reads only label state stores, so a github-issues repository beside a YouTrack one cannot read stage tag stores (#1298, `factory_plugins/github/gate.py:535`).
+- Doctor reports of `factory validate` crashing repeat (#1096, #1097, #1248, #1267) with no traceback; on main `factory validate --team factory/tests/fixtures/team` prints `factory: ok`. Ask for the probe's engine version and traceback before you plan work (#1267).
+- `deploy.py` variants, the `agent_prompt` old branch and `node_spec` tiers still serve `local/surface.py` and three test modules; delete them together with #682 (#681, `factory/factory_plugins/local/surface.py:90`).
+
