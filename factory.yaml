@@ -148,7 +148,7 @@ environments:
     domains: [github.com, api.github.com, objects.githubusercontent.com, release-assets.githubusercontent.com,
               "*.blob.core.windows.net", pypi.org, files.pythonhosted.org, registry.npmjs.org]
     vm: default
-    setup: null                   # optional script path, run after the engine's bootstrap; installs the environment's tools
+    setup: environments/setup.sh  # Node and Java: the engine's check-workflow tests (statechart, TLC)
   team:                           # team tickets and PRs, the knowledge base, retro and the team routines
     repositories:
       - { repo: zaharchenko-evgeny/slop-eval-factory, write: true }
@@ -156,6 +156,7 @@ environments:
     domains: [github.com, api.github.com, objects.githubusercontent.com, release-assets.githubusercontent.com,
               "*.blob.core.windows.net", pypi.org, files.pythonhosted.org, registry.npmjs.org]   # developers run the engine's tests
     vm: default
+    setup: environments/setup.sh  # Node and Java for `factory check-workflow`
   intake:                         # triage of every ticket: both repositories, nothing writable
     repositories:
       - { repo: zaharchenko-evgeny/slop-factory }
