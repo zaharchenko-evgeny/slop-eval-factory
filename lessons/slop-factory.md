@@ -13,6 +13,7 @@
 - `factory/tests/fixtures/slop` mirrors `slop-eval-factory`; apply the same `factory.yaml` token edit and `issues_token_env` removal there, or the SOURCE check fails (#1236).
 - The sandbox sets `FACTORY_ENV`, `FACTORY_ENV_REPOSITORY` and `FACTORY_ISSUES_TOKEN`; tests that read the process environment must patch them (#1236, `test_gate_github.py CiSyncCodeHostTest`).
 - `uv run factory/nodes.py validate` fails on `origin/main` with `unknown-effect: notify-pr.notified` (`assign` on `pr`); report `env-broken`, do not fix it in an unrelated ticket (#1243, #1286).
+- The CI-equivalent test run needs `pytest` and Java (statechart checks) in the sandbox: `uv run --with pytest pytest -q -p no:cacheprovider factory/tests skills/factory-setup/tests` (#1326).
 - Tests that read the global team break under one-process pytest; pin the slop team in `setUpModule` or `setUpClass` (`test_deploy.py` PlanTest, `test_reconcile.py` ReconcileMainBlockersTest) (#681, CI factory-checks).
 - `test_gate_space.py test_definition_validation_names_the_environment_vcs` fails without `jinja2` in the script deps, also on `origin/main`; report `env-broken` (#681).
 - `factory/check_refs.py` treats any backticked absolute path such as `/workspaces` in docs as a missing repo path; avoid backticks around such paths (#1237, `docs/environment.md`).

@@ -8,6 +8,7 @@
 - The skills install in engine sandboxes is incomplete (3 of the declared skills); the cause is `team_setup.roles_in` ignoring `settings.environments` and node `environments`, so setup skips skills of nodes without their own environment (#1179, #1180, #1182, `factory/team_setup.py`).
 - Doctor files one ticket per missing skill and one per repeated token-scope 403, and each enters triage as buildable work; group them into one ticket per cause before you plan work (#1181, #1224, #1225).
 - `factory doctor --help` runs the real probes and writes to the tracker (created #1187, #1193); never run it to read help (#1178, #1179).
+- Intake and router sandboxes can start with no `factory` on PATH and no `~/factory-team`; run `FACTORY_ENV=engine sh /workspaces/slop-eval-factory/.air/cloud/startup.sh`, or set `FACTORY_TEAM=/workspaces/slop-eval-factory` and use `uv run` (#1326, #1338).
 - Verify a ticket's claim about code before triage; ticket 1127 said `check_refs.py` skips `engine/template-v1`, but line 64 scans it (#1127, `factory/check_refs.py:64`).
 
 ## Automated checks
