@@ -159,7 +159,7 @@ nodes:
                        effects: [{ review: approve-at-head }, { unlabel: "factory:review-low" }, { label: "risk:low" },
                                 { label: "factory:automerge", on: pr }, { stage: approved }] }
       approve-risky: { if: { ci: [green, pending, none] }, else: changes,
-                       effects: [{ review: approve-at-head }, { comment: walkthrough, on: pr }, { unlabel: "factory:review-low" }, { label: "risk:high" },
+                       effects: [{ review: approve-at-head }, { unlabel: "factory:review-low" }, { label: "risk:high" },
                                 { label: "factory:needs-human", on: pr }, { stage: approved }] }   # merge risk medium or high: a person merges
       changes:       { effects: [{ review: request-changes-at-head }, { unlabel: "factory:review-low" }, { label: "factory:fix", on: pr }, { stage: changes-requested }] }
       incomplete:    { effects: [{ unlabel: "factory:review-low" }, { comment: reason }, { stage: blocked }] }   # evidence a person must supply (access, a tool); notify tells the owner
@@ -175,7 +175,7 @@ nodes:
                        effects: [{ review: approve-at-head }, { unlabel: "factory:review-high" }, { label: "risk:low" },
                                 { label: "factory:automerge", on: pr }, { stage: approved }] }
       approve-risky: { if: { ci: [green, pending, none] }, else: changes,
-                       effects: [{ review: approve-at-head }, { comment: walkthrough, on: pr }, { unlabel: "factory:review-high" }, { label: "risk:high" },
+                       effects: [{ review: approve-at-head }, { unlabel: "factory:review-high" }, { label: "risk:high" },
                                 { label: "factory:needs-human", on: pr }, { stage: approved }] }   # merge risk medium or high: a person merges
       changes:       { effects: [{ review: request-changes-at-head }, { unlabel: "factory:review-high" }, { label: "factory:fix", on: pr }, { stage: changes-requested }] }
       incomplete:    { effects: [{ unlabel: "factory:review-high" }, { comment: reason }, { stage: blocked }] }   # evidence a person must supply (access, a tool); notify tells the owner

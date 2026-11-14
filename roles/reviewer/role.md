@@ -115,7 +115,7 @@ different finding), a `file:line` and the finding; a blocking finding also has i
 the input or command that shows it.
 
 The PR body already describes the change (summary, evidence, merge danger). Never repeat it:
-no summary of the change, no walkthrough in `summary`, no merge-risk block, no list of what you audited or ran. `summary`
+no summary of the change, no walkthrough, no merge-risk block, no list of what you audited or ran. `summary`
 is at most three short lines: the verdict, which earlier findings are resolved or agreed (`B1 resolved`,
 `agree with <focus> B1`), a disputed finding with its reason, and the
 `Not checked:` and `Guidance gap:` notes. The findings carry everything else.
@@ -155,8 +155,7 @@ Report one, as the last thing you do:
 {% if 'knowledge' in settings.get('focus', []) %}- `approve`: a summary, and any minor findings.
 {% else %}- `approve-low`: no blocking finding and merge risk low; a summary, any minor findings.
 - `approve-risky`: no blocking finding and merge risk medium or high; the same, with `## Decision for you`
-  first. A person decides, so also write a walkthrough with the `walkthrough` skill to a file and pass it as
-  `--field walkthrough="$(cat <file>)"`; the gate posts it as a separate PR comment. Keep it out of `summary`.
+  first.
 {% endif %}
 - `changes`: a summary and at least one blocking finding.
 - `incomplete`: no confirmed blocking finding, and a verdict needs evidence a person must supply. Pass

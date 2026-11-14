@@ -83,7 +83,7 @@ roles:
     skills:
       - ponytail-review           # a name from `skills`
       - merge-risk
-      - walkthrough               # the walkthrough comment of `approve-risky`
+      - walkthrough               # the Walkthrough section of the review body
       # - adr-reading: { path: roles/reviewer/skills/adr-reading }      # a role-only local skill
       # - security-review: { source: "github:owner/repo@<sha>", path: skills/security-review, sha256: ... }
     mcp: {}
