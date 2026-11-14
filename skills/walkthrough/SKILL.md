@@ -11,9 +11,9 @@ metadata:
       url: "https://github.com/warpdotdev/common-skills/blob/main/.agents/skills/readout/SKILL.md"
 ---
 
-A walkthrough gets a person who has none of the context to a decision on a PR quickly. It is the
-`## Walkthrough` section of the review body, between `## Summary` and `## Merge danger`. It explains the
-change; it holds no findings and no verdict. Findings stay in their own list.
+A walkthrough gets a person who has none of the context to a decision on a PR quickly. It is a separate PR
+comment, posted when a person must decide (`approve-risky`), next to the short review. It explains the
+change; it holds no findings and no verdict. Findings stay in the review.
 
 Ground everything in the code at the PR head and the base branch (`git diff origin/<base>...HEAD`, the
 changed files and their callers), plus the ticket. Name real files, symbols, nodes and labels. Never
