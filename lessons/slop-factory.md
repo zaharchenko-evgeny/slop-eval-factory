@@ -3,7 +3,7 @@
 ## Automated checks
 
 - `jactionlint` fails on `origin/main` for `comment-wake-label.yml` (concurrency-limits, dangerous-triggers); report `env-broken`, do not fix it in an unrelated ticket (#652, #847, #861, #867, #896, #941).
-- Treat `factory/tests/test_check_workflow.py` (6 tests, check-workflow time-out, or `spawn java ENOENT` with no Java) as failing on `origin/main`: report `env-broken` instead of fixing it in a ticket; `environments/setup.sh` now installs Node and Java, so check `java -version` first (#902, #951, #1363, #1365, #1380, #1387, #1391, #1399).
+- Treat `factory/tests/test_check_workflow.py` (6 tests, check-workflow time-out, or `spawn java ENOENT` with no Java) as failing on `origin/main`: report `env-broken` instead of fixing it in a ticket; `environments/setup.sh` now installs Node and Java, so check `java -version` first (#902, #951, #1363, #1365, #1380, #1387, #1391, #1399, #1395, #1396, #1424).
 - Downloads of GitHub releases and the TLC jar return HTTP 504 in CI and tests; wrap each in `scripts/retry-network.sh`, and report a 504-only red as `env-broken` (#1045, #892, run 42465461232).
 - Build the wheel in tests with `uv build`, not `pip --no-build-isolation`; CI has no pip or setuptools (#1091, PR 1093).
 - Run `factory/tests` one process per file; a single process fails 90+ tests through shared state (#766).
@@ -12,7 +12,7 @@
 - A new `validate` rule can fail the factory-setup template and the slop fixture; check both. If the team repo breaks the rule, merge the team PR first, then regenerate the fixture (CI pins `SOURCE`) (#995, `skills/factory-setup/tests/test_templates.py`).
 - `factory/tests/fixtures/slop` mirrors `slop-eval-factory`; apply the same `factory.yaml` token edit and `issues_token_env` removal there, or the SOURCE check fails (#1236).
 - The sandbox sets `FACTORY_ENV`, `FACTORY_ENV_REPOSITORY` and `FACTORY_ISSUES_TOKEN`; tests that read the process environment must patch them (#1236, `test_gate_github.py CiSyncCodeHostTest`).
-- `uv run factory/nodes.py validate` fails on `origin/main` with `unknown-effect: notify-pr.notified` (`assign` on `pr`); report `env-broken`, do not fix it in an unrelated ticket (#1243, #1286, #1383).
+- `uv run factory/nodes.py validate` fails on `origin/main` with `unknown-effect: notify-pr.notified` (`assign` on `pr`); report `env-broken`, do not fix it in an unrelated ticket (#1243, #1286, #1383, #1428).
 - The CI-equivalent test run needs `pytest` and Java (statechart checks) in the sandbox: `uv run --with pytest pytest -q -p no:cacheprovider factory/tests skills/factory-setup/tests` (#1326).
 - Tests that read the global team break under one-process pytest; pin the slop team in `setUpModule` or `setUpClass` (`test_deploy.py` PlanTest, `test_reconcile.py` ReconcileMainBlockersTest) (#681, CI factory-checks).
 - `test_gate_space.py test_definition_validation_names_the_environment_vcs` fails without `jinja2` in the script deps, also on `origin/main`; report `env-broken` (#681).
@@ -21,6 +21,8 @@
 - `doctor.skill_installed` reads `~/.agents/skills` for v2 teams, so tests pass locally and fail in CI unless they inject `has_skill` (#1394, `factory/tests/test_doctor.py test_missing_tool_reported_for_env`).
 - Race tests must block at the write (barrier before the POST), not at a read; the gate reads comments several times, so a read barrier never overlaps (#1373, `test_gate_github.py test_overlapping_runs_of_one_node_keep_the_first_comment_only`).
 - Test-suite clones of `cursor/plugins` from github.com (10 tests, `scripts/vendor-skills.py fetch_pinned`) turned main red on a 429 rate limit (#1369, run 43451823368).
+- `factory/tests/ui/test_view_registration.py` allows only `react`, the snapshot types and the registry as imports in `ui/src/views`; widen the allow-list when you add a view, and run the whole `factory/tests/ui` directory before handoff (#1400, #1402, `test_ui_views_import_only_the_snapshot_types_and_the_registry`).
+- `factory/check_refs.py` resolves bare names with `root.rglob`; deleting a fixture can break doc refs in CI, so grep the docs for the name first (#1395, `factory/check_refs.py`).
 
 ## Coding standards
 
@@ -43,5 +45,7 @@
 - Engine gaps found on v2 teams: `gate.sweep`, `definition.plan` and `join` read v1 node names and tiered labels, so v2 plans nothing and counts no fix rounds; `gate.apply` refuses a failed check only for outcome `done`, not `done-low`/`done-high`; `config.load()` gives v2 roles only a tier, so `factory run --local` raises `KeyError 'luna'`; v2 `validate` rejects unknown keys only in `tracker` (#1394, `factory/definition.py:1340`, `factory/gate.py:1160`, `factory/gate.py:853`, `factory/config.py`).
 - The GitHub gate cannot claim a once-comment atomically; the lock is per host only (#1373, `factory/factory_plugins/github/gate.py _once_lock`).
 - `air deploy` assumes `get_environment` returns `projectId`; the contract snapshot does not show it (#1387, `factory/factory_plugins/air/deploy.py missing_project_environments`).
-- A cleanup ticket called "mostly deletions" still needed test porting: `fixtures/team` and `engine/nodes.yaml` underlie about 12 test modules; estimate the test porting, not the file count (#682, `sed s#fixtures/team#fixtures/slop#` gives 45 failures).
+- A cleanup ticket called "mostly deletions" still needed test porting: `fixtures/team` and `engine/nodes.yaml` underlie about 12 test modules; estimate the test porting, not the file count (#682, `sed s#fixtures/team#fixtures/slop#` gives 45 failures). Old-layout leftovers after 4b (`engine/project.schema.json`, `fixtures/project-youtrack`, `workflow.migrate`, `cli --main`/`from_main`) belong to #682 too (#1395, `factory/cli.py`, `factory/project.py`).
 - A ticket that needs a local path outside the Air checkouts (here an `offline-eval-factory` install on a Mac) cannot be built by the Air developer; split it or mark it local-only (#1370).
+- Air event filters have no NOT; `by: human` compiles to `sender_type: User`, a filter key no probe has confirmed; probe a new filter key before you rely on it (#1437, `docs/air-events.md`).
+- The `reconcile:heartbeat` doctor probe fails when no issue carries the label `factory:map`, and `doctor:team` and `doctor:engine` each file a duplicate ticket for it; merge the pair before planning (#1415, #1416, `gh issue list -l factory:map --state all` returns `[]`).
