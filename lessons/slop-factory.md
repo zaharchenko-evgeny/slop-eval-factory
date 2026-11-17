@@ -28,6 +28,7 @@
 
 - Never hand-edit `fixtures/slop/workflow.yaml`; regenerate it with the migrate tool, or `test_slop_fixture_is_migrate_project_output` fails in CI (#1008, PR 1020).
 - `test_no_hardcoded_factory_labels_in_engine` flags every literal `factory:x` not preceded by `<!-- `; widen the regex for closing markers (#1038, `factory/tests/test_project_ports.py`).
+- After a merge with main, check `factory/factory_plugins/github/gate.py` for port methods two tickets both added (`blocking`, `event`); a duplicate silently shadows the first (#1281, #1280).
 - Grep for a symbol on `origin/main` before you remove it; removing `wake.ROOT` conflicted with `engine_repository` and broke 3 tests after merge (#1091, PR 1093).
 - `writes-not-heard` needs the node to listen to every repository it writes (#978, `factory/definition.py _event_errors`).
 - A definition has no tag or field store, so YouTrack deploy scenarios edit the compiled config in test (`youtrack_plan`) (#837).
@@ -37,6 +38,8 @@
 - In the uv tool install `wake.ROOT` (`Path(__file__).parents[3]`) points to `lib/python3.12`, so the comment-wake probes report `project-files denied` (#1091, `factory/factory_plugins/github/wake.py:13`).
 - A router `factory doctor` run writes to live issues and PRs, and its `read:actions-run-logs` probe fails with "log not found" for an unknown cause (#732, #968).
 - `FACTORY_ISSUES_TOKEN` cannot write the `blocked_by` dependency API (403), so the router cannot link split tickets (#652, `POST .../issues/70/dependencies/blocked_by`).
+- `create_children` in `factory_plugins/youtrack/store.py` makes each child block its parent; a contract test of `relate` must drop the parent depend link before it tests find-blocking (#1281).
+- The Air `create-pr` output is Air platform behaviour; the repo only declares the value (`factory/nodes.py:24`), so a ticket that asks to change it is not buildable here (#1386).
 - A rendered YouTrack team still reports `unlinked-project`: the template has GitHub label triggers and no state stores (#903).
 - A new `factory_plugins/<name>` package must be listed in `pyproject.toml` `packages`, or the wheel lacks it and its CLI command resolves to None (#1255, #1128).
 - The GitHub gate store reads only label state stores, so a github-issues repository beside a YouTrack one cannot read stage tag stores (#1298, `factory_plugins/github/gate.py:535`).
