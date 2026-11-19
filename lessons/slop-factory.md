@@ -52,3 +52,5 @@
 - A ticket that needs a local path outside the Air checkouts (here an `offline-eval-factory` install on a Mac) cannot be built by the Air developer; split it or mark it local-only (#1370).
 - Air event filters have no NOT; `by: human` compiles to `sender_type: User`, a filter key no probe has confirmed; probe a new filter key before you rely on it (#1437, `docs/air-events.md`).
 - The `reconcile:heartbeat` doctor probe fails when no issue carries the label `factory:map`, and `doctor:team` and `doctor:engine` each file a duplicate ticket for it; merge the pair before planning (#1415, #1416, `gh issue list -l factory:map --state all` returns `[]`).
+- `ticket_from_ref` (`factory/gate_port.py:22`) has callers in `gate.py`, `gate_port.py` and `factory_plugins/github/gate.py`; grep all callers before you change PR-to-ticket lookup (#1502).
+- The doctor probe `write:label` on `slop-eval-factory` keeps failing with 403 and reopens as a new issue each run until the token is granted access; group the repeats into one ticket (#1092, #1356, #1417, #1498).
